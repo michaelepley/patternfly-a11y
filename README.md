@@ -46,6 +46,10 @@ OR
 
 `yarn exec patternfly-a11y --prefix http://localhost:9000 --crawl /dashboard`
 
+OR for testing openshift deployed to RHPDS (the prefix is located in the config): 
+
+`yarn exec patternfly-a11y --crawl /dashboard --config os-config-rhpds.js`
+
 For more advanced usage, you can create a config file
 
 `yarn exec patternfly-a11y --config a11y-config.js`

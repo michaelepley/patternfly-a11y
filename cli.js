@@ -74,7 +74,7 @@ function runPuppeteer(urls, otherUrls, options) {
     console.log(
       "At least one URL is required (i.e. patternfly-a11y --prefix https://www.google.com /accessibility)"
     );
-    process.exit(3);
+    // process.exit(3);
   }
 
   const writeCoverageFn = () =>

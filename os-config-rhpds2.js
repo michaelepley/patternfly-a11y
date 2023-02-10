@@ -5,8 +5,8 @@ function delay(time) {
 }
 
 async function loginOpenshift({ page, data }) {
-  const user = "mepley";
-  const pass = "ucuUZ-corPs-IJJ5X-viMTB";
+  const user = "opentlc-mgr";
+  const pass = "r3dh4t1!";
   const url = data.prefix;
   console.log(`nav to ${url}`);
   await page.goto(`${url}`, { waitUntil: "load" });
@@ -44,7 +44,7 @@ async function waitForOs(page) {
 }
 
 module.exports = {
-  prefix: "https://console-openshift-console.apps.ocp4.patternfly.org",
+  prefix: "https://console-openshift-console.apps.cluster-f6bw6.f6bw6.sandbox2941.opentlc.com/",
   auth: loginOpenshift,
   waitFor: waitForOs,
   crawl: false,
