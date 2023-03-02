@@ -16,9 +16,12 @@ async function escalatePrivs({page, data}) {
 		await page.waitForSelector("#switch-to-admin-access-password");
 		// enter the password and authenticate
 		await page.type("#switch-to-admin-access-password", pass);
-		await page.click("#switch-to-admin-access-password.button");
+		// await page.click("div:has(#switch-to-admin-access-password) > footer > button.pf-m-progress"); // apparently puppeteer does not yet support CSS level 4 selectors
+		await page.click("button.pf-m-progress");
 	    await page.waitForNavigation();
-	    await delay(1000);
+	    await delay(200);
+	    console.assert(await page.waitForSelector("div#super-user-indicator"), "Not super user, tests may not succeed")
+	    console.log("Super user indicator: " + await page.$$eval("#super-user-indicator", nodes => nodes.map(n => n.innerText)));
 	    console.log("finished privilege escalation");
 	} else console.log("already privileged user");
 }
@@ -39,13 +42,29 @@ async function loginLocalVM_pwauth({ page, data }) {
 		    await page.type("#login-password-input", pass);
 		    await page.click("#login-button");
 		    await page.waitForNavigation();
-		    await delay(1000);
+		    await delay(200);
 		    console.log("finished auth");
 		  }
 	  var data = [user,pass];
-	  await escalatePrivs({page, data});
 	}
 
+//Attempts to log out of a RHEL cockpit web user interface
+async function logoutLocalVM_pwauth({ page, data }) {
+	  const url = data.prefix;
+	  console.log(`nav to ${url}`);
+	  // goto the page under test
+	  await page.goto(`${url}`, { waitUntil: "load" });
+	  // If we are presented a login page, attempt to login
+	  if (page.$("#login")) {
+		    console.log("have to auth first");
+		  }
+	  var data = [user,pass];
+	}
+
+// Does not attempt to login to the RHEL cockpit web user interface 
+async function nologin({ page, data }) {
+    console.log("no authentication requested");
+}
 
 async function loginLocalVM_ssh({ page, data }) {
   const user = "mepley";
@@ -114,6 +133,10 @@ async function waitForOs(page) {
   });
 }
 
+var auth_methods = [
+	"none" : 
+]
+
 var urls_all= [
     "/system",
     "/system/logs",
@@ -136,7 +159,22 @@ var urls_all= [
     "/apps",
   ];
 
-const urls_test= urls_all.slice(0,1);
+var std_user_credential = { type : "none"} 
+var std_user_credential_pw = { type : "password", value="password1!"} 
+var std_user_credential_key = { type : "sshkey", value=""} 
+	
+var default_context = { authentication : {type : "none", user : "", credential : { type : "none"} } };
+var context_std_user = { authentication : {type : "LocalVM_pwauth", user : "", credential : { type : "none"} } };
+var context_root_user = { authentication : {type : "LocalVM_pwauth_escalate", user : "", credential : { type : "none"} } };
+var urls_all_metadata = [
+    { url : "/system" }, 
+    { url : "/system" context : default_context }, 
+    { url : "/system" context : context_std_user }, 
+    { url : "/system" context : context_root_user }, 
+  ];
+
+
+const urls_test= urls_all.slice(0,2);
 
 console.log("All URLS: " + urls_all);
 console.log("Urls under test: " + urls_test);
